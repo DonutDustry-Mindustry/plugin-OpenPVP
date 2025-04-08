@@ -3,3 +3,5 @@
 - Билдим с помощью `./gradlew jar`.
 Кидаем в `/server/config/mods`.
 - По багам в ишуи, за говнокод не ручаюсь, мне так легче.
+
+- Дискорд DonutDustry: https://discord.gg/x6FtF5hzNY
