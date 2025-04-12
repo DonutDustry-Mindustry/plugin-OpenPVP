@@ -4,7 +4,9 @@ import arc.struct.ObjectIntMap;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Timer;
+import mindustry.Vars;
 import mindustry.content.Blocks;
+import mindustry.content.Items;
 import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.gen.Groups;
@@ -12,6 +14,9 @@ import java.util.Random;
 import mindustry.gen.*;
 import lombok.Getter;
 import lombok.Setter;
+import static mindustry.content.Planets.*;
+import mindustry.world.Block;
+
 import static main.java.grely.PVars.*;
 
 public class func {
@@ -34,7 +39,7 @@ public class func {
         });
         StringBuilder sb = new StringBuilder();
         teamCores.forEach(team -> {
-            sb.append(team.key.coloredName() + " [stat]имела " + team.value + " ядер!");
+            sb.append(playerTeams.find(z->z.getTeam()==team.key).owner.coloredName().replace("\n", "") + " [stat]имел(а) " + team.value + " ядер!\n");
         });
         Call.infoMessage(sb.toString());
         sb.setLength(0);
@@ -59,11 +64,48 @@ public class func {
         return playerTeams.find(zov -> zov.getTeam() == t && zov.getOwner() == p) != null;
     }
 
+    public static int getCap(Team team) {
+        int cap = Vars.state.rules.unitCap;
+
+        for (Building b : getCores()) {
+            if (b.team != team) continue;
+
+            if (b.block == Blocks.coreNucleus) {
+                cap += 8;
+            } else if (b.block == Blocks.coreFoundation) {
+                cap += 4;
+            }
+        }
+
+        return cap;
+    }
+
     public static void clearData() {
         awaitingClick.clear();
         playerTeams.clear();
         leftDatas.clear();
         gameStarted = false;
+    }
+
+    public static void addItems(Building core) {
+        try {
+            if(core == null)
+                return;
+            if(Vars.state.rules.planet == sun) {
+                core.items.add(Items.beryllium, 100);
+                core.items.add(Items.copper, 250);
+                core.items.add(Items.lead, 250);
+            } else if(Vars.state.rules.planet == serpulo) {
+                core.items.add(Items.copper, 250);
+                core.items.add(Items.lead, 250);
+            } else if(Vars.state.rules.planet == erekir) {
+                core.items.add(Items.beryllium, 250);
+            } else {
+                Log.err("Bruh.");
+            }
+        } catch (Exception e) {
+            Log.err("Не могу добавить ресурсы в ядро: ", e);
+        }
     }
 
     @Getter
@@ -103,20 +145,6 @@ public class func {
             this.team = team;
             this.owner = owner;
             players.add(owner);
-        }
-    }
-
-    @Getter
-    @Setter
-    static class ReqData {
-        Team team;
-        Player owner;
-        Player requester;
-
-        ReqData(Player o, Player r) {
-            this.team=o.team();
-            this.owner=o;
-            this.requester=r;
         }
     }
 }
